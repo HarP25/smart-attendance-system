@@ -44,27 +44,20 @@ def add_student():
 @app.route("/mark_attendance/<int:student_id>/<status>")
 def mark_attendance(student_id, status):
     selected_date = request.args.get("date", date.today().isoformat())
-    if selected_date > date.today().isoformat():
-        return """
-               <script>
-                    alert("Cannot Mark Attendane For Future Dates!");
-                    window.location.href = '/';
-                </script>
-               """
+
     conn = get_db_connection()
     conn.execute(
-        """INSERT INTO attendance (student_id, date, status) 
-        VALUES (?, ?, ?)
-        ON CONFLICT(student_id, date)
-        DO UPDATE SET status = excluded.status
-        """,    
-        (student_id, selected_date, status) 
+        """INSERT INTO attendance (student_id, date, status)
+           VALUES (?, ?, ?)
+           ON CONFLICT(student_id, date)
+           DO UPDATE SET status = excluded.status
+        """,
+        (student_id, selected_date, status)
     )
-
     conn.commit()
     conn.close()
 
-    return redirect("/")
+    return redirect("/attendance?date=" + selected_date)
 
 @app.route("/delete_student/<int:student_id>")
 def delete_student(student_id):
@@ -74,19 +67,31 @@ def delete_student(student_id):
     conn.close()
     return redirect("/")
 
+@app.route("/delete_attendance/<int:student_id>/<date>")
+def delete_attendance(student_id, date):
+    conn = get_db_connection()
+    conn.execute(
+        "DELETE FROM attendance WHERE student_id = ? AND date = ?",
+        (student_id, date)
+    )
+    conn.commit()
+    conn.close()
+    return redirect("/attendance?date=" + date)
+
 @app.route("/attendance")
 def view_attendance():
     selected_date = request.args.get("date", date.today().isoformat())
 
     conn = get_db_connection()
     records = conn.execute("""
-                           SELECT students.name, students.roll_no, attendance.status, attendance.date
+                           SELECT students.name, students.roll_no, students.id as student_id, 
+                                  attendance.status, attendance.date
                            FROM attendance
                            JOIN students ON attendance.student_id = students.id
                            WHERE attendance.date = ?
                            """, (selected_date,)).fetchall()
     conn.close()
-    return render_template("attendance.html", records=records)
+    return render_template("attendance.html", records=records, selected_date=selected_date)
 
 @app.route("/summary")
 def attendance_summary():
