@@ -68,7 +68,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 40px 20px;
             position: relative;
@@ -77,7 +77,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             animation: slideDown 0.8s ease-out;
         }
 
@@ -105,10 +105,27 @@
             margin-bottom: 10px;
         }
 
-        .records-container {
-            display: grid;
-            gap: 20px;
+        .date-badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--primary-neon);
+            border-radius: 10px;
+            padding: 10px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary-neon);
+            margin-top: 10px;
+        }
+
+        .table-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: fadeInUp 0.8s ease-out;
+            margin-bottom: 30px;
         }
 
         @keyframes fadeInUp {
@@ -122,19 +139,34 @@
             }
         }
 
-        .record-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 15px;
-            padding: 25px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0, 240, 255, 0.1);
+            border-bottom: 2px solid var(--primary-neon);
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            color: var(--primary-neon);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             animation: slideIn 0.6s ease-out backwards;
         }
 
-        .record-card:nth-child(n) {
+        tbody tr:nth-child(n) {
             animation-delay: calc(0.1s * var(--i));
         }
 
@@ -149,90 +181,70 @@
             }
         }
 
-        .record-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--primary-neon), var(--secondary-neon));
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        tbody tr:hover {
+            background: rgba(0, 240, 255, 0.05);
+            transform: scale(1.01);
         }
 
-        .record-card:hover {
-            border-color: var(--primary-neon);
-            transform: translateX(10px);
-            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.2);
-        }
-
-        .record-card:hover::before {
-            opacity: 1;
-        }
-
-        .record-content {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .student-details {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        td {
+            padding: 20px 15px;
+            font-size: 1rem;
         }
 
         .student-name {
-            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
-            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
         }
 
-        .student-roll {
-            font-size: 1.1rem;
+        .roll-number {
             color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
             letter-spacing: 1px;
-        }
-
-        .student-roll::before {
-            content: 'Roll No: ';
-            color: var(--primary-neon);
-            font-weight: 600;
         }
 
         .status-badge {
-            padding: 12px 25px;
-            border-radius: 10px;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 8px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: badgePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
 
         .status-present {
             background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 204, 102, 0.2));
             border: 2px solid var(--success);
             color: var(--success);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
 
         .status-absent {
             background: linear-gradient(135deg, rgba(255, 0, 85, 0.2), rgba(204, 0, 68, 0.2));
             border: 2px solid var(--danger);
             color: var(--danger);
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+        }
+
+        .delete-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--danger), #cc0044);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.5);
         }
 
         .empty-state {
@@ -278,13 +290,29 @@
             box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5);
         }
 
-        @media (max-width: 768px) {
-            .record-content {
-                grid-template-columns: 1fr;
+        @media (max-width: 1200px) {
+            .table-wrapper {
+                overflow-x: auto;
             }
 
-            .status-badge {
-                justify-content: center;
+            table {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .delete-btn {
+                padding: 8px 15px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -295,27 +323,47 @@
     <div class="container">
         <div class="header">
             <h1>Attendance Records</h1>
+            {% if selected_date %}
+            <div class="date-badge">📅 {{ selected_date }}</div>
+            {% endif %}
         </div>
 
         {% if records %}
-        <div class="records-container">
-            {% for r in records %}
-            <div class="record-card" style="--i: {{ loop.index }}">
-                <div class="record-content">
-                    <div class="student-details">
-                        <div class="student-name">{{ r["name"] }}</div>
-                        <div class="student-roll">{{ r["roll_no"] }}</div>
-                    </div>
-                    <div class="status-badge status-{{ r['status'] }}">
-                        {% if r["status"] == "present" %}
-                            ✓ Present
-                        {% else %}
-                            ✗ Absent
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Roll No</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr style="--i: {{ loop.index }}">
+                        <td class="student-name">{{ record["name"] }}</td>
+                        <td class="roll-number">{{ record["roll_no"] }}</td>
+                        <td>
+                            <span class="status-badge status-{{ record['status'] }}">
+                                {% if record["status"] == "present" %}
+                                    ✓ Present
+                                {% else %}
+                                    ✗ Absent
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/delete_attendance/{{ record['student_id'] }}/{{ record['date'] }}"
+                               class="delete-btn"
+                               onclick="return confirm('⚠️ Delete this attendance entry?\n\nStudent: {{ record['name'] }}\nDate: {{ record['date'] }}\n\nThis action cannot be undone!')">
+                                🗑️ Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
         <div class="empty-state">
@@ -330,8 +378,9 @@
     </div>
 
     <script>
-        document.querySelectorAll('.record-card').forEach((card, index) => {
-            card.style.setProperty('--i', index);
+        // Add stagger animation to table rows
+        document.querySelectorAll('tbody tr').forEach((row, index) => {
+            row.style.setProperty('--i', index);
         });
     </script>
 </body>
