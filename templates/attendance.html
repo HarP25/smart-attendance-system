@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-neon: #00f0ff;
+            --secondary-neon: #ff00ff;
+            --accent-purple: #8b00ff;
+            --dark-bg: #0a0a0f;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --success: #00ff88;
+            --danger: #ff0055;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-neon) 0%, var(--secondary-neon) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .records-container {
+            display: grid;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .record-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out backwards;
+        }
+
+        .record-card:nth-child(n) {
+            animation-delay: calc(0.1s * var(--i));
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .record-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-neon), var(--secondary-neon));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .record-card:hover {
+            border-color: var(--primary-neon);
+            transform: translateX(10px);
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.2);
+        }
+
+        .record-card:hover::before {
+            opacity: 1;
+        }
+
+        .record-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .student-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .student-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .student-roll {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        .student-roll::before {
+            content: 'Roll No: ';
+            color: var(--primary-neon);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .status-present {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 204, 102, 0.2));
+            border: 2px solid var(--success);
+            color: var(--success);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .status-absent {
+            background: linear-gradient(135deg, rgba(255, 0, 85, 0.2), rgba(204, 0, 68, 0.2));
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-purple));
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .record-content {
+                grid-template-columns: 1fr;
+            }
+
+            .status-badge {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Attendance Records</h1>
+        </div>
+
+        {% if records %}
+        <div class="records-container">
+            {% for r in records %}
+            <div class="record-card" style="--i: {{ loop.index }}">
+                <div class="record-content">
+                    <div class="student-details">
+                        <div class="student-name">{{ r["name"] }}</div>
+                        <div class="student-roll">{{ r["roll_no"] }}</div>
+                    </div>
+                    <div class="status-badge status-{{ r['status'] }}">
+                        {% if r["status"] == "present" %}
+                            ✓ Present
+                        {% else %}
+                            ✗ Absent
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">No attendance records found for this date</div>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center;">
+            <a href="/" class="back-button">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.record-card').forEach((card, index) => {
+            card.style.setProperty('--i', index);
+        });
+    </script>
+</body>
+</html>
