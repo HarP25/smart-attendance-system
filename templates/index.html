@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-neon: #00f0ff;
+            --secondary-neon: #ff00ff;
+            --accent-purple: #8b00ff;
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(15, 15, 25, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-neon) 0%, var(--secondary-neon) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.6)); }
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card:hover {
+            border-color: var(--primary-neon);
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary-neon);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 25px;
+            background: linear-gradient(180deg, var(--primary-neon), var(--secondary-neon));
+            border-radius: 2px;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-selector label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        input[type="date"],
+        input[type="text"] {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 18px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus {
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-purple));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .add-student-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .add-student-form .btn {
+            grid-column: 1 / -1;
+        }
+
+        .student-list {
+            list-style: none;
+            display: grid;
+            gap: 15px;
+        }
+
+        .student-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease-out backwards;
+        }
+
+        .student-item:nth-child(n) {
+            animation-delay: calc(0.1s * var(--i));
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .student-item:hover {
+            border-color: var(--primary-neon);
+            background: rgba(0, 240, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .student-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .student-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .student-roll {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        .student-roll::before {
+            content: 'Roll No: ';
+            color: var(--primary-neon);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-present {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .btn-present:hover {
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-absent {
+            background: linear-gradient(135deg, #ff0055, #cc0044);
+            color: #fff;
+        }
+
+        .btn-absent:hover {
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.5);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-action-link {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .quick-action-link:hover::before {
+            left: 100%;
+        }
+
+        .quick-action-link:hover {
+            border-color: var(--primary-neon);
+            background: rgba(0, 240, 255, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 5px currentColor);
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-neon), transparent);
+            margin: 40px 0;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .add-student-form {
+                grid-template-columns: 1fr;
+            }
+
+            .student-item {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                justify-content: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Smart Attendance</h1>
+            <p>Next-Gen Student Management System</p>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="glass-card">
+            <div class="section-title">Select Date</div>
+            <form method="get" class="date-selector">
+                <label>Choose Date:</label>
+                <input type="date" name="date" value="{{ request.args.get('date', '') }}" required>
+                <button type="submit" class="btn">Load Date</button>
+            </form>
+        </div>
+
+        <!-- Add Student Form -->
+        <div class="glass-card">
+            <div class="section-title">Register Student</div>
+            <form method="POST" action="/add_student" class="add-student-form">
+                <input type="text" name="name" placeholder="Student Name" required>
+                <input type="text" name="roll_no" placeholder="Roll Number" required>
+                <button type="submit" class="btn">Add Student</button>
+            </form>
+        </div>
+
+        <!-- Student List -->
+        <div class="glass-card">
+            <div class="section-title">Student Roster</div>
+            <ul class="student-list">
+                {% for student in students %}
+                <li class="student-item" style="--i: {{ loop.index }}">
+                    <div class="student-info">
+                        <div class="student-name">{{ student["name"] }}</div>
+                        <div class="student-roll">{{ student["roll_no"] }}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="/mark_attendance/{{ student['id'] }}/present?date={{ request.args.get('date') }}" style="text-decoration: none;">
+                            <button type="button" class="btn btn-present">✓ Present</button>
+                        </a>
+                        <a href="/mark_attendance/{{ student['id'] }}/absent?date={{ request.args.get('date') }}" style="text-decoration: none;">
+                            <button type="button" class="btn btn-absent">✗ Absent</button>
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <!-- View Specific Date Attendance -->
+        <div class="glass-card">
+            <div class="section-title">View Attendance by Date</div>
+            <form method="GET" action="/attendance" class="date-selector">
+                <input type="date" name="date" required>
+                <button type="submit" class="btn">View Attendance</button>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card">
+            <div class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+                <a href="/attendance" class="quick-action-link">
+                    <span class="icon">📅</span>
+                    <span>Today's Attendance</span>
+                </a>
+                <a href="/summary" class="quick-action-link">
+                    <span class="icon">📊</span>
+                    <span>Attendance Summary</span>
+                </a>
+                <a href="/delete" class="quick-action-link">
+                    <span class="icon">🗑️</span>
+                    <span>Delete Students</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add stagger animation to student items
+        document.querySelectorAll('.student-item').forEach((item, index) => {
+            item.style.setProperty('--i', index);
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body>
+</html>
