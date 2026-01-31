@@ -19,3 +19,5 @@ A web-based attendance management system built using **Flask** and **SQLite**.
 ```bash
 pip install flask
 python app.py
+
+Run the code once, experience the fun and experience.
