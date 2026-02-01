@@ -459,10 +459,10 @@
                         <div class="student-roll">{{ student["roll_no"] }}</div>
                     </div>
                     <div class="action-buttons">
-                        <a href="/mark_attendance/{{ student['id'] }}/present?date={{ request.args.get('date') }}" style="text-decoration: none;">
+                        <a href="/mark_attendance/{{ student['id'] }}/present{% if request.args.get('date') %}?date={{ request.args.get('date') }}{% endif %}" style="text-decoration: none;">
                             <button type="button" class="btn btn-present">✓ Present</button>
                         </a>
-                        <a href="/mark_attendance/{{ student['id'] }}/absent?date={{ request.args.get('date') }}" style="text-decoration: none;">
+                        <a href="/mark_attendance/{{ student['id'] }}/absent{% if request.args.get('date') %}?date={{ request.args.get('date') }}{% endif %}" style="text-decoration: none;">
                             <button type="button" class="btn btn-absent">✗ Absent</button>
                         </a>
                     </div>
