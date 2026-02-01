@@ -43,7 +43,21 @@ def add_student():
 
 @app.route("/mark_attendance/<int:student_id>/<status>")
 def mark_attendance(student_id, status):
-    selected_date = request.args.get("date", date.today().isoformat())
+    # Get the selected date from URL parameter, default to today if not provided
+    selected_date = request.args.get("date")
+    
+    # If no date provided or empty string, use today's date
+    if not selected_date:
+        selected_date = date.today().isoformat()
+    
+    # Check if the selected date is in the future
+    if selected_date > date.today().isoformat():
+        return """
+               <script>
+                    alert("Cannot Mark Attendance For Future Dates!");
+                    window.location.href = '/';
+                </script>
+               """
 
     conn = get_db_connection()
     conn.execute(
