@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Records</title>
+    <title>Attendance Summary</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
@@ -33,6 +33,7 @@
             color: var(--text-primary);
             position: relative;
             overflow-x: hidden;
+            padding-bottom: 50px;
         }
 
         body::before {
@@ -68,7 +69,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 40px 20px;
             position: relative;
@@ -94,7 +95,7 @@
 
         .header h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2rem, 4vw, 3rem);
+            font-size: clamp(2rem, 4vw, 3.5rem);
             font-weight: 900;
             background: linear-gradient(135deg, var(--primary-neon) 0%, var(--secondary-neon) 100%);
             -webkit-background-clip: text;
@@ -102,12 +103,15 @@
             background-clip: text;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 10px;
         }
 
-        .records-container {
-            display: grid;
-            gap: 20px;
+        .table-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: fadeInUp 0.8s ease-out;
         }
 
@@ -122,137 +126,136 @@
             }
         }
 
-        .record-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 15px;
-            padding: 25px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0, 240, 255, 0.1);
+            border-bottom: 2px solid var(--primary-neon);
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            color: var(--primary-neon);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            animation: slideIn 0.6s ease-out backwards;
         }
 
-        .record-card:nth-child(n) {
-            animation-delay: calc(0.1s * var(--i));
+        tbody tr:hover {
+            background: rgba(0, 240, 255, 0.05);
+            transform: scale(1.01);
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .record-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--primary-neon), var(--secondary-neon));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .record-card:hover {
-            border-color: var(--primary-neon);
-            transform: translateX(10px);
-            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.2);
-        }
-
-        .record-card:hover::before {
-            opacity: 1;
-        }
-
-        .record-content {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .student-details {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        td {
+            padding: 20px 15px;
+            font-size: 1rem;
         }
 
         .student-name {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .roll-number {
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .stats-value {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .percentage {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
             font-family: 'Orbitron', sans-serif;
         }
 
-        .student-roll {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            letter-spacing: 1px;
-        }
-
-        .student-roll::before {
-            content: 'Roll No: ';
-            color: var(--primary-neon);
-            font-weight: 600;
-        }
-
-        .status-badge {
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: badgePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .status-present {
+        .percentage-high {
             background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 204, 102, 0.2));
-            border: 2px solid var(--success);
+            border: 1px solid var(--success);
             color: var(--success);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
 
-        .status-absent {
+        .percentage-medium {
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 153, 0, 0.2));
+            border: 1px solid #ffcc00;
+            color: #ffcc00;
+        }
+
+        .percentage-low {
             background: linear-gradient(135deg, rgba(255, 0, 85, 0.2), rgba(204, 0, 68, 0.2));
-            border: 2px solid var(--danger);
+            border: 1px solid var(--danger);
             color: var(--danger);
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 20px;
+        .attendance-history {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-neon) rgba(0, 0, 0, 0.3);
         }
 
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .attendance-history::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .empty-state-text {
-            font-size: 1.3rem;
+        .attendance-history::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .attendance-history::-webkit-scrollbar-thumb {
+            background: var(--primary-neon);
+            border-radius: 3px;
+        }
+
+        .attendance-entry {
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .attendance-entry:last-child {
+            border-bottom: none;
+        }
+
+        .date-label {
             color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .status-icon {
+            font-size: 1.2rem;
+        }
+
+        .no-records {
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
         .back-button {
@@ -278,13 +281,24 @@
             box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5);
         }
 
-        @media (max-width: 768px) {
-            .record-content {
-                grid-template-columns: 1fr;
+        @media (max-width: 1200px) {
+            .table-wrapper {
+                overflow-x: auto;
             }
 
-            .status-badge {
-                justify-content: center;
+            table {
+                min-width: 1000px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
             }
         }
     </style>
@@ -294,33 +308,80 @@
     
     <div class="container">
         <div class="header">
-            <h1>Attendance Records</h1>
+            <h1>Attendance Summary</h1>
         </div>
 
-        {% if records %}
-        <div class="records-container">
-            {% for r in records %}
-            <div class="record-card" style="--i: {{ loop.index }}">
-                <div class="record-content">
-                    <div class="student-details">
-                        <div class="student-name">{{ r["name"] }}</div>
-                        <div class="student-roll">{{ r["roll_no"] }}</div>
-                    </div>
-                    <div class="status-badge status-{{ r['status'] }}">
-                        {% if r["status"] == "present" %}
-                            ✓ Present
-                        {% else %}
-                            ✗ Absent
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+        {% if summary and summary|length > 0 %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Roll No</th>
+                        <th>Total Days</th>
+                        <th>Present Days</th>
+                        <th>Attendance %</th>
+                        <th>Datewise Records</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in summary %}
+                    <tr>
+                        <td class="student-name">{{ s["name"] }}</td>
+                        <td class="roll-number">{{ s["roll_no"] }}</td>
+                        <td class="stats-value">{{ s["total_days"] }}</td>
+                        <td class="stats-value">{{ s["present_days"] or 0 }}</td>
+                        <td>
+                            {% if s["total_days"] > 0 %}
+                                {% set percentage = (s["present_days"] * 100) / s["total_days"] %}
+                                <span class="percentage 
+                                    {% if percentage >= 75 %}percentage-high
+                                    {% elif percentage >= 50 %}percentage-medium
+                                    {% else %}percentage-low{% endif %}">
+                                    {{ '%.2f' % percentage }}%
+                                </span>
+                            {% else %}
+                                <span class="percentage percentage-low">0%</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if s["attendance"] %}
+                            <div class="attendance-history">
+                                {% for a in s["attendance"] %}
+                                <div class="attendance-entry">
+                                    <span class="date-label">{{ a["date"] }}</span>
+                                    <span class="status-icon">
+                                        {% if a["status"] == "present" %}
+                                            <span style="color: var(--success);">✓ Present</span>
+                                        {% else %}
+                                            <span style="color: var(--danger);">✗ Absent</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="no-records">No Records</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon">📋</div>
-            <div class="empty-state-text">No attendance records found for this date</div>
+        <div style="text-align: center; padding: 100px 20px;">
+            <div style="font-size: 5rem; margin-bottom: 30px; opacity: 0.3;">📊</div>
+            <h2 style="color: var(--text-secondary); font-size: 2rem; margin-bottom: 20px;">No Students Found</h2>
+            <p style="color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 30px;">
+                Add students and mark their attendance to see the summary here.
+            </p>
+            <a href="/" style="display: inline-block; background: linear-gradient(135deg, var(--primary-neon), var(--accent-purple)); 
+                border: none; border-radius: 10px; padding: 15px 40px; color: #000; 
+                font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem; 
+                text-transform: uppercase; text-decoration: none; transition: all 0.3s ease;">
+                ← Go to Home
+            </a>
         </div>
         {% endif %}
 
@@ -328,11 +389,5 @@
             <a href="/" class="back-button">← Back to Home</a>
         </div>
     </div>
-
-    <script>
-        document.querySelectorAll('.record-card').forEach((card, index) => {
-            card.style.setProperty('--i', index);
-        });
-    </script>
 </body>
 </html>
