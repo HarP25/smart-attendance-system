@@ -185,6 +185,17 @@
             letter-spacing: 1px;
         }
 
+        .current-date-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--primary-neon);
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-neon);
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
         input[type="date"],
         input[type="text"] {
             background: rgba(0, 0, 0, 0.4);
@@ -246,6 +257,15 @@
 
         .btn:active {
             transform: scale(0.98);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ff9500, #ff6b00);
+            color: #000;
+        }
+
+        .btn-reset:hover {
+            box-shadow: 0 5px 20px rgba(255, 149, 0, 0.5);
         }
 
         .add-student-form {
@@ -400,6 +420,18 @@
             border: none;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
         @media (max-width: 768px) {
             .add-student-form {
                 grid-template-columns: 1fr;
@@ -416,6 +448,11 @@
             .btn {
                 width: 100%;
             }
+
+            .date-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -430,17 +467,21 @@
 
         <!-- Date Selector -->
         <div class="glass-card">
-            <div class="section-title">Select Date</div>
+            <div class="section-title">📅 Select Date</div>
             <form method="get" class="date-selector">
-                <label>Choose Date:</label>
-                <input type="date" name="date" value="{{ request.args.get('date', '') }}" required>
-                <button type="submit" class="btn">Load Date</button>
+                <label>Marking attendance for:</label>
+                <div class="current-date-badge">{{ selected_date }}</div>
+                <input type="date" name="date" value="{{ selected_date }}" max="{{ today }}" required>
+                <button type="submit" class="btn">Change Date</button>
+                <a href="/" style="text-decoration: none;">
+                    <button type="button" class="btn btn-reset">Reset to Today</button>
+                </a>
             </form>
         </div>
 
         <!-- Add Student Form -->
         <div class="glass-card">
-            <div class="section-title">Register Student</div>
+            <div class="section-title">➕ Register Student</div>
             <form method="POST" action="/add_student" class="add-student-form">
                 <input type="text" name="name" placeholder="Student Name" required>
                 <input type="text" name="roll_no" placeholder="Roll Number" required>
@@ -450,7 +491,8 @@
 
         <!-- Student List -->
         <div class="glass-card">
-            <div class="section-title">Student Roster</div>
+            <div class="section-title">👥 Student Roster - {{ selected_date }}</div>
+            {% if students %}
             <ul class="student-list">
                 {% for student in students %}
                 <li class="student-item" style="--i: {{ loop.index }}">
@@ -459,36 +501,42 @@
                         <div class="student-roll">{{ student["roll_no"] }}</div>
                     </div>
                     <div class="action-buttons">
-                        <a href="/mark_attendance/{{ student['id'] }}/present{% if request.args.get('date') %}?date={{ request.args.get('date') }}{% endif %}" style="text-decoration: none;">
+                        <a href="/mark_attendance/{{ student['id'] }}/present?date={{ selected_date }}" style="text-decoration: none;">
                             <button type="button" class="btn btn-present">✓ Present</button>
                         </a>
-                        <a href="/mark_attendance/{{ student['id'] }}/absent{% if request.args.get('date') %}?date={{ request.args.get('date') }}{% endif %}" style="text-decoration: none;">
+                        <a href="/mark_attendance/{{ student['id'] }}/absent?date={{ selected_date }}" style="text-decoration: none;">
                             <button type="button" class="btn btn-absent">✗ Absent</button>
                         </a>
                     </div>
                 </li>
                 {% endfor %}
             </ul>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <p>No students registered yet. Add your first student above!</p>
+            </div>
+            {% endif %}
         </div>
 
         <hr class="divider">
 
         <!-- View Specific Date Attendance -->
         <div class="glass-card">
-            <div class="section-title">View Attendance by Date</div>
+            <div class="section-title">🔍 View Attendance by Date</div>
             <form method="GET" action="/attendance" class="date-selector">
-                <input type="date" name="date" required>
+                <input type="date" name="date" value="{{ selected_date }}" required>
                 <button type="submit" class="btn">View Attendance</button>
             </form>
         </div>
 
         <!-- Quick Actions -->
         <div class="glass-card">
-            <div class="section-title">Quick Actions</div>
+            <div class="section-title">⚡ Quick Actions</div>
             <div class="quick-actions">
-                <a href="/attendance" class="quick-action-link">
+                <a href="/attendance?date={{ selected_date }}" class="quick-action-link">
                     <span class="icon">📅</span>
-                    <span>Today's Attendance</span>
+                    <span>View Today's Attendance</span>
                 </a>
                 <a href="/summary" class="quick-action-link">
                     <span class="icon">📊</span>
