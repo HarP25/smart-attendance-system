@@ -13,10 +13,13 @@ def get_db_connection():
 
 @app.route("/")
 def home():
+    # Get the selected date from URL parameter, default to today
+    selected_date = request.args.get("date", date.today().isoformat())
+    
     conn = get_db_connection()
     students = conn.execute("SELECT * FROM students").fetchall()
     conn.close()
-    return render_template("index.html", students=students)
+    return render_template("index.html", students=students, selected_date=selected_date)
 
 @app.route("/add_student", methods=["POST"])
 def add_student():
@@ -43,7 +46,7 @@ def add_student():
 
 @app.route("/mark_attendance/<int:student_id>/<status>")
 def mark_attendance(student_id, status):
-    # Get the selected date from URL parameter, default to today if not provided
+    # Get the selected date from URL parameter
     selected_date = request.args.get("date")
     
     # If no date provided or empty string, use today's date
@@ -52,10 +55,10 @@ def mark_attendance(student_id, status):
     
     # Check if the selected date is in the future
     if selected_date > date.today().isoformat():
-        return """
+        return f"""
                <script>
                     alert("Cannot Mark Attendance For Future Dates!");
-                    window.location.href = '/';
+                    window.location.href = '/?date={selected_date}';
                 </script>
                """
 
@@ -71,7 +74,8 @@ def mark_attendance(student_id, status):
     conn.commit()
     conn.close()
 
-    return redirect("/attendance?date=" + selected_date)
+    # Redirect back to home with the selected date
+    return redirect(f"/?date={selected_date}")
 
 @app.route("/delete_student/<int:student_id>")
 def delete_student(student_id):
@@ -81,16 +85,16 @@ def delete_student(student_id):
     conn.close()
     return redirect("/")
 
-@app.route("/delete_attendance/<int:student_id>/<date>")
-def delete_attendance(student_id, date):
+@app.route("/delete_attendance/<int:student_id>/<attendance_date>")
+def delete_attendance(student_id, attendance_date):
     conn = get_db_connection()
     conn.execute(
         "DELETE FROM attendance WHERE student_id = ? AND date = ?",
-        (student_id, date)
+        (student_id, attendance_date)
     )
     conn.commit()
     conn.close()
-    return redirect("/attendance?date=" + date)
+    return redirect("/attendance?date=" + attendance_date)
 
 @app.route("/attendance")
 def view_attendance():
@@ -103,6 +107,7 @@ def view_attendance():
                            FROM attendance
                            JOIN students ON attendance.student_id = students.id
                            WHERE attendance.date = ?
+                           ORDER BY students.name
                            """, (selected_date,)).fetchall()
     conn.close()
     return render_template("attendance.html", records=records, selected_date=selected_date)
@@ -117,10 +122,11 @@ def attendance_summary():
             students.name,
             students.roll_no,
             COUNT(attendance.id) AS total_days,
-            SUM(attendance.status = 'present') AS present_days
+            SUM(CASE WHEN attendance.status = 'present' THEN 1 ELSE 0 END) AS present_days
         FROM students
         LEFT JOIN attendance ON students.id = attendance.student_id
         GROUP BY students.id
+        ORDER BY students.name
     """).fetchall()
 
     summary = [dict(s) for s in summary]  # convert sqlite Row → dict
@@ -131,7 +137,7 @@ def attendance_summary():
             SELECT date, status
             FROM attendance
             WHERE student_id = ?
-            ORDER BY date
+            ORDER BY date DESC
         """, (s["id"],)).fetchall()
 
         s["attendance"] = records
