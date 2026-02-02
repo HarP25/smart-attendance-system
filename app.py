@@ -2,7 +2,7 @@ import flask
 import sqlite3
 from datetime import date
 from flask import Flask, render_template, request, redirect
-
+import os 
 app = Flask(__name__)
 
 def get_db_connection():
@@ -175,4 +175,6 @@ def delete_by_name():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
